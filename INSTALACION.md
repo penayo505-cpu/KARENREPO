@@ -48,6 +48,7 @@ Las tablas son:
 - `vd_clinic`: documento JSON clínico con pacientes, citas, evoluciones, odontograma, tratamientos y cobros; revisión para evitar sobrescrituras simultáneas.
 - `vd_attachments`: imágenes y PDF como BLOB privados, descargados bajo autenticación sólo cuando se solicitan. No hay carpeta pública de radiografías.
 - `vd_auth_limits`: límites de intentos de inicio de sesión.
+- `vd_remember_tokens`: hashes de los accesos recordados por 30 días. Se crea automáticamente al usar la opción; si el usuario MySQL carece de CREATE, importar `database/upgrade-2.1.sql` desde phpMyAdmin.
 
 Los cambios clínicos se guardan de forma atómica en el documento central. Es una implementación para un consultorio pequeño; no es un esquema relacional de reportes ni un sistema multiusuario. Los adjuntos no se incluyen en la carga inicial y se almacenan por separado. Hay un límite de 10 MB por sesión y 32 MB por solicitud; los adjuntos nuevos de cada operación cuentan para ese límite. No se eliminan automáticamente adjuntos antiguos al restaurar un respaldo, para evitar pérdidas.
 
@@ -75,7 +76,7 @@ Abrir https://vdnt.bmimportexport.com.py/:
 - Crear una contraseña de al menos **12 caracteres** y repetirla.
 - Introducir la clave privada de instalación de `config.php`.
 
-La creación inicial se bloquea una vez que existe la cuenta. Después, dejar `setup_token` vacío en `config.php`. Las contraseñas se guardan con `password_hash`, no en texto plano. Cambiar la contraseña desde Configuración invalida otras sesiones. Las sesiones expiran tras 8 horas de inactividad y usan cookies HttpOnly/SameSite/Secure. El servidor verifica autorización y CSRF en cada escritura. Diez intentos de acceso por IP en 15 minutos; redes compartidas cuentan como una IP.
+La creación inicial se bloquea una vez que existe la cuenta. Después, dejar `setup_token` vacío en `config.php`. Las contraseñas se guardan con `password_hash`, no en texto plano. Cambiar la contraseña desde Configuración invalida otras sesiones. Sin marcar la opción de recordar, las sesiones expiran tras 8 horas de inactividad. Con “Mantener sesión iniciada por 30 días”, un token aleatorio privado permite restaurar el acceso durante 30 días desde el ingreso, sin extender ese plazo con el uso. Los tokens se guardan como hashes en MySQL y se revocan al salir o cambiar la contraseña. Ambas opciones usan cookies HttpOnly/SameSite/Secure. El servidor verifica autorización y CSRF en cada escritura. Diez intentos de acceso por IP en 15 minutos; redes compartidas cuentan como una IP.
 
 ## 5. Usar en PC y iPhone
 
@@ -97,3 +98,9 @@ La PWA puede mostrar su interfaz sin conexión, pero esta edición **requiere In
 - Si se usó la versión anterior en este mismo dominio, cerrar todas las ventanas/PWA y abrir nuevamente para activar el Service Worker nuevo. El nuevo SW elimina cachés anteriores de Vital Dent; no borra datos de la versión antigua de IndexedDB. Exportarlos antes si existen y limpiar ese almacenamiento manualmente después de comprobar la migración.
 
 Esta entrega incluye código y pruebas en un servidor de desarrollo con PHP/MariaDB; no configura tu DNS, SSL ni base remota sin acceso al hosting. La prueba en un iPhone físico/Safari debe realizarse tras instalar. El diseño clínico usa blanco, cyan y pastel con alertas diferenciadas.
+
+## Actualizar una instalación existente a 2.1
+
+Descargar `updates/vital-dent-actualizacion-2.1.zip`, subirlo y extraerlo dentro de **VDNT**, la carpeta que contiene `public/` y `server/`, aceptando reemplazar sólo los archivos incluidos. No extraer dentro de `public/`, no borrar carpetas y no reimportar el esquema completo. El ZIP excluye `server/config.php`, contraseñas y datos. Incluye permisos 755 para sus carpetas y 644 para sus archivos, evitando el 403 por archivos sin lectura pública.
+
+La tabla de accesos recordados se crea automáticamente. Si aparece un error de permiso CREATE, seleccionar **bmimport_vdnt** e importar sólo `database/upgrade-2.1.sql`. Cerrar las ventanas/PWA y abrir nuevamente para activar el Service Worker actualizado; no hace falta borrar los datos del sitio. Ver también `ACTUALIZAR.txt`. El ZIP puede regenerarse con `python3 scripts/build-update.py` y tiene un checksum SHA-256 junto al archivo.

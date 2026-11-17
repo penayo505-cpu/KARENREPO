@@ -1,3 +1,3 @@
-VITAL DENT 2.3.0
-Extraer directamente en VDNT y reemplazar archivos incluidos. Conserva config.php y datos.
-Calendario mensual: días con citas, navegación entre meses, botón Hoy y selección de fecha para ver o agendar citas. No requiere SQL.
+VITAL DENT 2.4.0
+Respaldar y extraer en VDNT reemplazando archivos incluidos. Conserva config.php y datos.
+Historial de pagos y abonos dentro del plan del paciente. Eliminar pagos y procedimientos con confirmación. Saldo y crédito recalculados automáticamente. No requiere SQL nuevo.

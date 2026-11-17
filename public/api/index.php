@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
+header('X-Vital-Dent-Version: 2.1.2');
 function reply(array $data, int $status=200): never { http_response_code($status); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); exit; }
 set_exception_handler(function(Throwable $e): void {
     if ($e instanceof InvalidArgumentException || $e instanceof JsonException) reply(['error'=>'Solicitud inválida. Revisá los datos enviados.'],422);
@@ -19,7 +20,7 @@ $origin=web_origin($config['app_url']??null,true);
 if ($origin===null) reply(['error'=>'Revisá app_url en server/config.php: debe ser la URL HTTPS del consultorio.'],503);
 $local=in_array(parse_url($origin,PHP_URL_HOST),['localhost','127.0.0.1'],true);
 if (!$local && (parse_url($origin,PHP_URL_SCHEME)!=='https' || empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')) reply(['error'=>'Esta aplicación requiere HTTPS. Revisá SSL y la configuración del hosting.'],400);
-if (!request_origin_allowed($_SERVER,$origin)) reply(['error'=>'Origen no autorizado. Abrí '.$origin.' directamente en Safari o Chrome.','code'=>'origin_not_allowed'],403);
+if (!request_origin_allowed($_SERVER,$origin)) reply(['error'=>'Origen no autorizado. Abrí '.$origin.' directamente en Safari o Chrome.','code'=>'origin_not_allowed','diagnostic'=>origin_diagnostic($_SERVER,$origin)],403);
 ini_set('session.use_strict_mode','1');
 session_name('vd_session');
 session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!$local,'httponly'=>true,'samesite'=>'Strict']);

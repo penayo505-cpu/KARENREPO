@@ -99,10 +99,12 @@ La PWA puede mostrar su interfaz sin conexión, pero esta edición **requiere In
 
 Esta entrega incluye código y pruebas en un servidor de desarrollo con PHP/MariaDB; no configura tu DNS, SSL ni base remota sin acceso al hosting. La prueba en un iPhone físico/Safari debe realizarse tras instalar. El diseño clínico usa blanco, cyan y pastel con alertas diferenciadas.
 
-## Actualizar una instalación existente a 2.1.1
+## Actualizar una instalación existente a 2.1.2
 
-Descargar `updates/vital-dent-actualizacion-2.1.1.zip`, subirlo y extraerlo dentro de **VDNT**, la carpeta que contiene `public/` y `server/`, aceptando reemplazar sólo los archivos incluidos. No extraer dentro de `public/`, no borrar carpetas y no reimportar el esquema completo. El ZIP excluye `server/config.php`, contraseñas y datos. Incluye permisos 755 para sus carpetas y 644 para sus archivos, evitando el 403 por archivos sin lectura pública.
+Descargar `updates/vital-dent-actualizacion-2.1.2.zip`, subirlo y extraerlo dentro de **VDNT**, la carpeta que contiene `public/` y `server/`, aceptando reemplazar sólo los archivos incluidos. No extraer dentro de `public/`, no borrar carpetas y no reimportar el esquema completo. El ZIP excluye `server/config.php`, contraseñas y datos. Incluye permisos 755 para sus carpetas y 644 para sus archivos, evitando el 403 por archivos sin lectura pública.
 
 La tabla de accesos recordados se crea automáticamente. Si aparece un error de permiso CREATE, seleccionar **bmimport_vdnt** e importar sólo `database/upgrade-2.1.sql`. Cerrar las ventanas/PWA y abrir nuevamente para activar el Service Worker actualizado; no hace falta borrar los datos del sitio. Ver también `ACTUALIZAR.txt`. El ZIP puede regenerarse con `python3 scripts/build-update.py` y tiene un checksum SHA-256 junto al archivo.
 
 Si un dispositivo muestra “Origen no autorizado”, comprobar que abre `https://vdnt.bmimportexport.com.py/` directamente en Safari/Chrome y que `app_url` tiene ese dominio. La versión 2.1.1 normaliza la comparación y contempla Origin opaco de WebKit sólo con Referer autorizado y protección CSRF. No se aceptan otros dominios, HTTP en producción, puertos diferentes ni origen null sin evidencia de la dirección autorizada. Esta corrección no requiere cambios en la base clínica ni en credenciales.
+
+Desde 2.1.2, ante un bloqueo de origen pulsar **Copiar diagnóstico** y enviar ese texto para identificar qué comparación falla. Los datos copiados están limitados a versiones, estado HTTP y dominios/categorías de las cabeceras. Nunca incluyen configuración privada, contraseñas, cookies o el CSRF. `server/validation.php` valida los datos clínicos y debe permanecer en su ubicación.

@@ -1,0 +1,20 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
+ const context=await browser.newContext({permissions:['clipboard-read','clipboard-write'],viewport:{width:390,height:844}});
+ const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const endpoint='http://localhost:8090/api/index.php?action=status';
+ const response=await context.request.get(endpoint,{headers:{Origin:'https://other.example',Referer:'https://other.example/private?token=PRIVATE'}});
+ assert.equal(response.status(),403);const blocked=await response.json();assert.equal(blocked.diagnostic.received_origin,'https://other.example');assert.equal(blocked.diagnostic.referer_origin,'https://other.example');assert.ok(!JSON.stringify(blocked.diagnostic).includes('PRIVATE'));
+ await page.route('https://cdn.tailwindcss.com/**',r=>r.abort());
+ await page.route('**/api/index.php?action=status',r=>r.fulfill({status:403,contentType:'application/json',body:JSON.stringify({...blocked,csrf:'MUST-NOT-COPY',diagnostic:{...blocked.diagnostic,cookie:'MUST-NOT-COPY'}})}));
+ await page.goto('http://localhost:8090');await page.getByRole('heading',{name:'Acceso bloqueado por dominio'}).waitFor();
+ await page.getByRole('button',{name:'Copiar diagnóstico'}).click();const copied=JSON.parse(await page.evaluate(()=>navigator.clipboard.readText()));assert.equal(copied.received_origin,'https://other.example');assert.equal(copied.opened_origin,'http://localhost:8090');assert.equal(copied.http_status,403);assert.equal(copied.server_version,'2.1.2');assert.ok(!JSON.stringify(copied).includes('MUST-NOT-COPY'));
+ await page.unroute('**/api/index.php?action=status');
+ await page.route('**/api/index.php?action=status',r=>r.fulfill({status:403,contentType:'application/json',body:JSON.stringify({...blocked,diagnostic:{...blocked.diagnostic,expected_origin:'https://vdnt.bmimportexport.com.py'}})}));
+ await page.getByRole('button',{name:'Reintentar',exact:true}).click();await page.getByRole('link',{name:'Abrir dirección autorizada'}).waitFor();assert.equal(await page.getByRole('link',{name:'Abrir dirección autorizada'}).getAttribute('href'),'https://vdnt.bmimportexport.com.py/');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.unroute('**/api/index.php?action=status');await page.getByRole('button',{name:'Reintentar',exact:true}).click();await page.getByRole('heading',{name:'Ingresar',exact:true}).waitFor();assert.deepEqual(errors,[]);
+ await browser.close();console.log('PASS: real origin-rejection diagnostics, distinct error title, clipboard, credential filtering, canonical-domain action, retry recovery and mobile width.');
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,3 +1,4 @@
+const APP_VERSION='2.1.2';
 const $ = (q, root=document) => root.querySelector(q);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today = () => localDate(new Date());
@@ -16,7 +17,7 @@ async function api(action,body){
  catch {throw Error('Sin conexión con el servidor. No se guardaron los cambios.');}
  let result;
  try {result=await response.json();} catch {throw Error('El servidor no respondió como API. Revisá PHP y la configuración del hosting.');}
- if(!response.ok){if(response.status===401&&auth){auth=false;db=emptyDB();$('#modal').close();render();}throw Error(result.error||'No se pudo completar la operación.');}
+ if(!response.ok){if(response.status===401&&auth){auth=false;db=emptyDB();$('#modal').close();render();}const error=Error(result.error||'No se pudo completar la operación.');error.status=response.status;error.code=result.code;error.diagnostic=result.diagnostic;throw error;}
  return result;
 }
 async function loadClinic(){const result=await api('clinic');validateBackup({format:'vital-dent',version:1,data:result.data});db=result.data;revision=result.revision;}
@@ -97,9 +98,20 @@ document.addEventListener('input',e=>{if(e.target.id==='patient-search'){const q
 document.addEventListener('change',async e=>{const el=e.target;if(el.id==='agenda-date')$('#agenda-results').innerHTML=appointmentTable(db.appointments.filter(a=>!el.value||a.date===el.value).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)));if(el.id==='cash-date')$('#cash-results').innerHTML=paymentTable(db.payments.filter(p=>!el.value||p.date===el.value));if(el.dataset.treatment||el.dataset.appointment){try{const next=structuredClone(db);const list=el.dataset.treatment?next.treatments:next.appointments;list.find(x=>x.id===(el.dataset.treatment||el.dataset.appointment)).status=el.value;await commit(next);toast('Estado actualizado');}catch(err){toast(err.message);render();}}});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});
 for(const event of ['online','offline'])window.addEventListener(event,()=>{const el=$('#online');if(el){el.textContent=navigator.onLine?'● En línea':'● Sin conexión';el.className=`badge ${navigator.onLine?'green':''}`;}});
+function connectionError(error){
+ const fields=['server_version','expected_origin','received_origin','referer_origin','fetch_site'];
+ const diagnostic={client_version:APP_VERSION,opened_origin:location.origin,http_status:error.status||0,error_code:error.code||'connection_error'};
+ for(const field of fields){const value=error.diagnostic?.[field];if(typeof value==='string')diagnostic[field]=value.slice(0,250);}
+ let canonical='';
+ try{const url=new URL(diagnostic.expected_origin);if(['http:','https:'].includes(url.protocol)&&!url.username&&!url.password&&url.origin!==location.origin)canonical=url.origin+'/';}catch{}
+ $('#app').innerHTML=`<main class="login"><section class="card connection-error"><h1>${error.code==='origin_not_allowed'?'Acceso bloqueado por dominio':'No se pudo conectar al servidor'}</h1><p>${esc(error.message)}</p>${canonical?`<a class="btn primary" href="${esc(canonical)}">Abrir dirección autorizada</a>`:''}<div class="actions"><button type="button" class="btn ${canonical?'':'primary'}" id="retry-connection">Reintentar</button><button type="button" class="btn" id="copy-diagnostic">Copiar diagnóstico</button></div><details id="diagnostic-details"><summary>Ver diagnóstico</summary><label for="connection-diagnostic" class="sr-only">Diagnóstico de conexión</label><textarea id="connection-diagnostic" readonly spellcheck="false"></textarea></details></section></main>`;
+ const text=JSON.stringify(diagnostic,null,2);$('#connection-diagnostic').value=text;
+ $('#retry-connection').onclick=boot;
+ $('#copy-diagnostic').onclick=async()=>{try{await navigator.clipboard.writeText(text);toast('Diagnóstico copiado');}catch{$('#diagnostic-details').open=true;$('#connection-diagnostic').focus();$('#connection-diagnostic').select();toast('Copiá el texto seleccionado');}};
+}
 async function boot(){
  try{const status=await api('status');csrf=status.csrf;auth=status.authenticated;needsSetup=status.setup;db=emptyDB();if(auth)await loadClinic();render();}
- catch(e){$('#app').innerHTML=`<main class="login"><section class="card"><h1>No se pudo conectar al servidor</h1><p>${esc(e.message)}</p><button class="btn primary" id="retry-connection">Reintentar conexión</button></section></main>`;$('#retry-connection').onclick=boot;}
+ catch(e){connectionError(e);}
 }
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 await boot();

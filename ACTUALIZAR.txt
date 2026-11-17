@@ -1,7 +1,7 @@
-VITAL DENT 2.1.1 — ACTUALIZACIÓN
+VITAL DENT 2.1.2 — ACTUALIZACIÓN
 
 1. Exportar un respaldo desde Configuración y conservar una copia de la base MySQL.
-2. Subir vital-dent-actualizacion-2.1.1.zip a VDNT, la carpeta que contiene public/ y server/.
+2. Subir vital-dent-actualizacion-2.1.2.zip a VDNT, la carpeta que contiene public/ y server/.
 3. Extraer DIRECTAMENTE dentro de VDNT y aceptar reemplazar los archivos incluidos.
    NO extraer dentro de public. NO crear una carpeta adicional con el nombre del ZIP.
 4. El ZIP no contiene server/config.php ni credenciales. Conserva la conexión existente.
@@ -17,6 +17,12 @@ VITAL DENT 2.1.1 — ACTUALIZACIÓN
 8. Borrar el ZIP de VDNT después de extraerlo.
 
 CAMBIOS
+- La pantalla de bloqueo distingue “Acceso bloqueado por dominio” de una falla de
+  conexión. “Copiar diagnóstico” muestra la diferencia de dominios/cabeceras y la
+  versión instalada, sin copiar claves, cookies, tokens ni datos clínicos.
+- Si el dominio abierto no coincide con el configurado, ofrece un enlace a la URL
+  autorizada. La política de acceso conserva sus controles. Esta actualización
+  facilita identificar el bloqueo; no implica que la causa del hosting esté resuelta.
 - Corrección de validación de origen para Safari: compara esquema, dominio y puerto
   normalizados. Si Origin es null exige un Referer del dominio autorizado y conserva
   la validación CSRF. No habilita dominios externos ni acceso sin contraseña.

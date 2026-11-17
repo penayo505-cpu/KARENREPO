@@ -26,4 +26,6 @@ expect(request_origin_allowed(['HTTP_REFERER'=>$expected.'/index.html'],$expecte
 expect(request_origin_allowed(['HTTP_REFERER'=>'https://evil.example/'],$expected),false);
 expect(request_origin_allowed([],$expected),true);
 expect(request_origin_allowed(['HTTP_SEC_FETCH_SITE'=>'cross-site'],$expected),false);
+$diagnostic=origin_diagnostic(['HTTP_ORIGIN'=>'https://user:password@evil.example','HTTP_REFERER'=>$expected.'/secret?token=PRIVATE','HTTP_COOKIE'=>'SECRET','HTTP_X_CSRF_TOKEN'=>'SECRET','HTTP_SEC_FETCH_SITE'=>'cross-site'],$expected);
+expect($diagnostic['received_origin'],'invalid');expect($diagnostic['referer_origin'],$expected);expect(count($diagnostic),5);expect(str_contains(json_encode($diagnostic),'SECRET'),false);expect(str_contains(json_encode($diagnostic),'PRIVATE'),false);
 echo 'PASS: '.$count.' origin cases: canonical configuration, default ports, WebKit fallback, missing headers and cross-origin rejection.'.PHP_EOL;

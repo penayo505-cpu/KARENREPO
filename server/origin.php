@@ -32,3 +32,17 @@ function request_origin_allowed(array $server, string $expected): bool {
     // without either header, CSRF + SameSite cookies continue to protect writes.
     return !array_key_exists('HTTP_REFERER',$server) || web_origin($server['HTTP_REFERER'],true)===$expected;
 }
+
+/** Public routing evidence only: no cookies, tokens, paths, queries or credentials. */
+function origin_diagnostic(array $server, string $expected): array {
+    $source=$server['HTTP_ORIGIN']??null;
+    $referer=$server['HTTP_REFERER']??null;
+    $site=$server['HTTP_SEC_FETCH_SITE']??'missing';
+    return [
+        'server_version'=>'2.1.2',
+        'expected_origin'=>$expected,
+        'received_origin'=>$source===null?'missing':($source==='null'?'null':(web_origin($source)??'invalid')),
+        'referer_origin'=>$referer===null?'missing':(web_origin($referer,true)??'invalid'),
+        'fetch_site'=>in_array($site,['same-origin','same-site','cross-site','none','missing'],true)?$site:'invalid',
+    ];
+}

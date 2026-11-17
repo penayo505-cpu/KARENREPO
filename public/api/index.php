@@ -14,10 +14,12 @@ set_exception_handler(function(Throwable $e): void {
 $configFile=dirname(__DIR__,2).'/server/config.php';
 if (!is_file($configFile)) reply(['error'=>'Falta server/config.php. Seguí INSTALACION.md.'],503);
 $config=require $configFile;
-$origin=rtrim($config['app_url'],'/');
+require dirname(__DIR__,2).'/server/origin.php';
+$origin=web_origin($config['app_url']??null,true);
+if ($origin===null) reply(['error'=>'Revisá app_url en server/config.php: debe ser la URL HTTPS del consultorio.'],503);
 $local=in_array(parse_url($origin,PHP_URL_HOST),['localhost','127.0.0.1'],true);
 if (!$local && (parse_url($origin,PHP_URL_SCHEME)!=='https' || empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')) reply(['error'=>'Esta aplicación requiere HTTPS. Revisá SSL y la configuración del hosting.'],400);
-if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN']!==$origin) reply(['error'=>'Origen no autorizado.'],403);
+if (!request_origin_allowed($_SERVER,$origin)) reply(['error'=>'Origen no autorizado. Abrí '.$origin.' directamente en Safari o Chrome.','code'=>'origin_not_allowed'],403);
 ini_set('session.use_strict_mode','1');
 session_name('vd_session');
 session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!$local,'httponly'=>true,'samesite'=>'Strict']);

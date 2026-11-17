@@ -1,4 +1,5 @@
-const APP_VERSION='2.1.2';
+import {canonicalUrl} from './routing.js';
+const APP_VERSION='2.1.3';
 const $ = (q, root=document) => root.querySelector(q);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today = () => localDate(new Date());
@@ -113,5 +114,8 @@ async function boot(){
  try{const status=await api('status');csrf=status.csrf;auth=status.authenticated;needsSetup=status.setup;db=emptyDB();if(auth)await loadClinic();render();}
  catch(e){connectionError(e);}
 }
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-await boot();
+const canonical=canonicalUrl(location.href);
+if(canonical){location.replace(canonical);}else{
+ if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ await boot();
+}

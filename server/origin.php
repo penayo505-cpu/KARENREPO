@@ -39,7 +39,7 @@ function origin_diagnostic(array $server, string $expected): array {
     $referer=$server['HTTP_REFERER']??null;
     $site=$server['HTTP_SEC_FETCH_SITE']??'missing';
     return [
-        'server_version'=>'2.1.2',
+        'server_version'=>'2.1.3',
         'expected_origin'=>$expected,
         'received_origin'=>$source===null?'missing':($source==='null'?'null':(web_origin($source)??'invalid')),
         'referer_origin'=>$referer===null?'missing':(web_origin($referer,true)??'invalid'),

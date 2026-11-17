@@ -1,7 +1,7 @@
-VITAL DENT 2.1.2 — ACTUALIZACIÓN
+VITAL DENT 2.1.3 — ACTUALIZACIÓN
 
 1. Exportar un respaldo desde Configuración y conservar una copia de la base MySQL.
-2. Subir vital-dent-actualizacion-2.1.2.zip a VDNT, la carpeta que contiene public/ y server/.
+2. Subir vital-dent-actualizacion-2.1.3.zip a VDNT, la carpeta que contiene public/ y server/.
 3. Extraer DIRECTAMENTE dentro de VDNT y aceptar reemplazar los archivos incluidos.
    NO extraer dentro de public. NO crear una carpeta adicional con el nombre del ZIP.
 4. El ZIP no contiene server/config.php ni credenciales. Conserva la conexión existente.
@@ -17,12 +17,17 @@ VITAL DENT 2.1.2 — ACTUALIZACIÓN
 8. Borrar el ZIP de VDNT después de extraerlo.
 
 CAMBIOS
+- Causa confirmada del bloqueo: algunos dispositivos abrían www.vdnt.bmimportexport.com.py
+  en vez de vdnt.bmimportexport.com.py. Se agrega redirección automática del alias www
+  a la dirección autorizada, tanto en Apache como en la aplicación antes del login.
+- El ZIP incluye public/.htaccess y public/routing.js. Si personalizaste .htaccess,
+  conservá una copia antes de reemplazarlo. No cambia la conexión MySQL ni la cuenta.
 - La pantalla de bloqueo distingue “Acceso bloqueado por dominio” de una falla de
   conexión. “Copiar diagnóstico” muestra la diferencia de dominios/cabeceras y la
   versión instalada, sin copiar claves, cookies, tokens ni datos clínicos.
 - Si el dominio abierto no coincide con el configurado, ofrece un enlace a la URL
-  autorizada. La política de acceso conserva sus controles. Esta actualización
-  facilita identificar el bloqueo; no implica que la causa del hosting esté resuelta.
+  autorizada. La política de acceso conserva sus controles. La pantalla permite
+  identificar otras diferencias de configuración si aparecen en el futuro.
 - Corrección de validación de origen para Safari: compara esquema, dominio y puerto
   normalizados. Si Origin es null exige un Referer del dominio autorizado y conserva
   la validación CSRF. No habilita dominios externos ni acceso sin contraseña.

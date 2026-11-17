@@ -1,0 +1,3 @@
+# Defense in depth if the project root is mistakenly exposed by Apache.
+# Correct document root MUST be vdnt/public, never vdnt.
+Require all denied

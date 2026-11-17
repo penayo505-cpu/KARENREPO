@@ -9,7 +9,7 @@ files = [
     'public/.htaccess', 'public/routing.js', 'public/app.js', 'public/styles.css', 'public/sw.js', 'public/api/index.php',
     'server/remember.php', 'server/origin.php', 'server/validation.php', 'database/upgrade-2.1.sql', 'ACTUALIZAR.txt',
 ]
-target = root / 'updates/vital-dent-actualizacion-2.2.0.zip'
+target = root / 'updates/vital-dent-actualizacion-2.3.0.zip'
 target.parent.mkdir(exist_ok=True)
 with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
     for path in ['public/', 'public/api/', 'server/', 'database/']:

@@ -61,6 +61,15 @@ function validate_clinic(mixed $d): void {
             }
         }
     }
+    $treatmentPatients=[];
+    foreach ($d['treatments'] as $t) {
+        $treatmentPatients[$t['id']]=$t['patientId'];
+        if (array_key_exists('date',$t) && !day($t['date'])) invalid();
+    }
+    foreach (['treatments','sessions','payments'] as $key) foreach ($d[$key] as $r) {
+        foreach (['treatmentId','appointmentId'] as $link) if (array_key_exists($link,$r) && (!is_string($r[$link]) || !preg_match('/^[a-f0-9-]{36}$/D',$r[$link]))) invalid();
+        if (isset($treatmentPatients[$r['treatmentId']??'']) && $treatmentPatients[$r['treatmentId']]!==$r['patientId']) invalid();
+    }
     if (!isset($d['teeth']) || !is_array($d['teeth'])) invalid();
     foreach ($d['teeth'] as $pid=>$teeth) {
         if (!isset($patientIds[$pid]) || !is_array($teeth)) invalid();

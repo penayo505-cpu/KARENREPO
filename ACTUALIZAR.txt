@@ -1,3 +1,35 @@
-VITAL DENT 2.4.0
-Respaldar y extraer en VDNT reemplazando archivos incluidos. Conserva config.php y datos.
-Historial de pagos y abonos dentro del plan del paciente. Eliminar pagos y procedimientos con confirmación. Saldo y crédito recalculados automáticamente. No requiere SQL nuevo.
+VITAL DENT 3.0 — INICIO CENTRADO EN LAS ATENCIONES
+
+INSTALAR
+1. Exportar un respaldo y conservar una copia de la base MySQL.
+2. Subir vital-dent-actualizacion-3.0.0.zip a VDNT y extraer allí, reemplazando
+   los archivos incluidos. NO extraer dentro de public ni crear otra carpeta.
+3. El ZIP conserva server/config.php y todos los datos. No requiere SQL nuevo
+   para el nuevo inicio. Incluye la actualización anterior de sesiones recordadas
+   por si se instala sobre una versión más antigua.
+4. Recargar con Ctrl + F5 en PC. En iPhone cerrar la PWA/Safari y volver a abrir.
+   Conservar los archivos ocultos, incluido public/.htaccess. El ZIP lleva
+   carpetas 755 y archivos 644; no cambiar los permisos de config.php.
+5. Borrar el ZIP del hosting una vez extraído.
+
+NUEVO INICIO
+- Fichas de atención, sin grilla de Excel ni indicadores comerciales.
+- Cada ficha muestra paciente, fecha, tratamiento, total, pagó y falta.
+- Anotar atención guarda el tratamiento, la nota clínica y el pago opcional
+  en un solo paso. Se puede registrar un tratamiento ya previsto sin duplicarlo.
+- Atender, junto a una cita de hoy, completa la cita al guardar la atención.
+- Citas: Próximas y Ya atendidos. El calendario mensual sigue disponible.
+- Editar, eliminar y ver los pagos están en el menú de tres puntos de la ficha.
+- El menú principal muestra Inicio, Pacientes y Agenda. Pagos y Ajustes están
+  dentro de Más. Se conservan odontograma, adjuntos y las funciones anteriores.
+
+PAGOS Y DATOS ANTERIORES
+Los pagos nuevos anotados desde una atención se vinculan con ese tratamiento.
+Los pagos anteriores sin vinculación se aplican primero a los importes más
+antiguos del mismo paciente. La asignación es un cálculo de pantalla: no modifica,
+recrea ni borra los pagos originales. El excedente queda a favor del paciente y
+se aplica a siguientes tratamientos. Los totales del paciente siguen coincidiendo.
+Un tratamiento sin fecha anterior muestra Sin fecha; no se inventan fechas.
+Las notas anteriores siguen en la ficha y en Ya atendidos. Los tratamientos por
+hacer se distinguen y se pueden filtrar. Eliminar un importe no borra la nota
+clínica ni los pagos: se recalcula el saldo/crédito correspondiente.

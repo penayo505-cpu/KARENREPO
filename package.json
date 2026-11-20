@@ -1,10 +1,10 @@
 {
   "name": "vital-dent",
   "private": true,
-  "version": "2.1.3",
+  "version": "3.0.0",
   "description": "Pruebas de Vital Dent; sin dependencias Node en producción",
   "scripts": {
-    "test": "node tests/browser.cjs && node tests/remember.cjs && node tests/origin.cjs && node tests/diagnostic.cjs && node tests/routing.cjs"
+    "test": "node tests/home-balances.cjs && node tests/browser.cjs && node tests/remember.cjs && node tests/origin.cjs && node tests/diagnostic.cjs && node tests/routing.cjs && node tests/home.cjs"
   },
   "devDependencies": {
     "playwright": "1.65.1"

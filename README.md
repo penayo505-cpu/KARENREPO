@@ -1,25 +1,26 @@
-# Vital Dent · Gestión odontológica
+# Vital Dent
 
-Aplicación web/PWA para **https://vdnt.bmimportexport.com.py/**, con base centralizada **MySQL/MariaDB y PHP 8.2+**. Interfaz clínica clara en cyan y tonos pastel, adaptable a PC y iPhone.
+Gestión odontológica para **https://vdnt.bmimportexport.com.py/** con PHP 8.2+, PDO y MySQL/MariaDB. Interfaz clara en cyan y pastel para PC e iPhone.
 
-**Instalación del subdominio, SQL, conexión privada y primer acceso:** [INSTALACION.md](INSTALACION.md).
+## Actualización 3.0
 
-## Estructura
+[Descargar ZIP](updates/vital-dent-actualizacion-3.0.0.zip) y extraer directamente en **VDNT**, donde están `public/` y `server/`. Conserva `server/config.php` y datos. El nuevo inicio no necesita cambios SQL. [Instrucciones](ACTUALIZAR.txt).
 
-- `public/`: única carpeta expuesta por el hosting; interfaz, PWA y API.
-- `server/`: configuración privada (usar la plantilla) y validación.
-- `database/schema.sql`: base de datos importable desde phpMyAdmin.
-- `tests/`: pruebas de integración con navegador, exclusivamente contra una base de prueba vacía.
+El inicio usa fichas, no una grilla: fecha, paciente, tratamiento, total, pagó y falta. **Anotar atención** registra el tratamiento, la nota y el pago opcional en una sola operación. **Atender** completa una cita del día. Próximas citas y pacientes ya atendidos están a la vista. Editar, eliminar y ver pagos están en el menú de la ficha; Pagos y Ajustes se encuentran en Más.
 
-Incluye pacientes e historia clínica, odontograma permanente/temporal por caras FDI, agenda con control de superposición, evoluciones con imágenes/PDF, planes por fases, presupuestos/abonos/saldos, caja y respaldo/restauración. Usuario único: `karen.frutos`; contraseña creada durante la instalación protegida por una clave privada. No hay contraseña predeterminada.
+![Inicio de Vital Dent con datos ficticios de prueba](docs/inicio-3.0.png)
 
-El login incluye una opción voluntaria de sesión por 30 días mediante un token aleatorio HttpOnly almacenado como hash en MySQL. El acceso se revoca al salir y al cambiar la contraseña. La API valida las sesiones, CSRF y datos, usa PDO preparado y evita sobreescrituras mediante revisión del documento clínico. Los adjuntos se guardan como BLOB privados independientes. Actualizar datos trae cambios desde otros dispositivos. No es una aplicación multiusuario ni tiene sincronización en tiempo real.
+Los datos antiguos se conservan. Las fechas desconocidas aparecen como Sin fecha. Los pagos nuevos pueden estar vinculados a un tratamiento; los anteriores y los excedentes se aplican al saldo más antiguo del mismo paciente. Este reparto se calcula para la vista sin reescribir pagos. El sobrante queda a favor y los totales coinciden con los de la ficha del paciente. Eliminar el importe de un tratamiento conserva su nota clínica y pagos.
 
-Esta versión sustituye el almacenamiento en el navegador por guardado en el servidor. No permite escrituras offline ni cachea historias clínicas. La PWA conserva la interfaz pública; para acceder a los datos necesita conexión. Tailwind se carga por CDN y el diseño completo tiene CSS propio.
+## Hosting
+
+[Instalación y configuración privada](INSTALACION.md). La raíz pública debe ser **VDNT/public**; `server/config.php` queda fuera de ella. No se necesitan Node ni compilación en producción. GitHub almacena el código; el hosting ejecuta PHP. El alias www se redirige a la dirección sin www.
+
+PWA instalable, acceso opcional recordado por 30 días, historias/odontograma, calendario mensual, sesiones con imágenes/PDF, tratamientos, pagos y respaldo/restauración. La base centralizada se comparte entre dispositivos. Las escrituras requieren Internet; no se cachean historias ni credenciales. Usar Actualizar datos para traer cambios hechos desde otro dispositivo. El servidor evita que una copia antigua sobrescriba cambios nuevos.
 
 ## Desarrollo y pruebas
 
-Crear una base MySQL **de prueba vacía con nombre terminado en `_test`**, importar `database/schema.sql`, copiar `server/config.example.php` a `server/config.php` y usar `app_url=http://localhost:8090`. Sólo para las pruebas, usar `setup_token=development-test-token-only-1234567890`. No usar esta clave en producción.
+Crear una base **vacía de prueba cuyo nombre termine en `_test`**, importar `database/schema.sql`, copiar la plantilla de configuración privada y usar `app_url=http://localhost:8090` y `setup_token=development-test-token-only-1234567890` exclusivamente en pruebas. Nunca usar esa clave en producción.
 
 ```sh
 php -S localhost:8090 -t public
@@ -34,18 +35,8 @@ VITAL_DENT_TESTS=1 php tests/db-fixture.php reset
 npm test
 ```
 
-El reset es destructivo y se limita a un entorno localhost con base `_test`. Las pruebas usan una contraseña ficticia, crean registros, exportan/restauran y necesitan que no exista todavía una cuenta en la base de prueba. Nunca apuntarlas a producción. `CHROMIUM_PATH` permite usar Chromium ya instalado y `PHP_BIN` seleccionar el ejecutable PHP para las pruebas de expiración/revocación. No se requiere Node en el hosting de producción.
+El reset borra exclusivamente la base de prueba y rechaza configuraciones de producción. `CHROMIUM_PATH` y `PHP_BIN` permiten seleccionar herramientas instaladas. Las pruebas crean datos ficticios, cambian la contraseña de prueba y necesitan comenzar con el reset anterior.
 
-Validación realizada con PHP 8.4, MariaDB 11.8 y Chromium: instalación/acceso, pacientes, citas superpuestas, odontograma 32/20 piezas, evolución/adjuntos, abonos y saldos, persistencia, respaldo/restauración, dos contextos de navegador compartiendo MySQL, pantalla táctil de 390 px, rechazo de escrituras offline, conflictos, respuestas 401/403/422 y cambio de contraseña. No sustituye la comprobación final en Safari de un iPhone físico ni valida el hosting remoto.
+Validación: flujos clínicos anteriores, autenticación/sesiones, origen y redirección www, adjuntos, respaldo/restauración, dinero recibido/aplicado/crédito (200 escenarios), carga conjunta de atención y pago, fallos de guardado, pagos parciales, edición sin duplicados, citas próximas y atendidas, persistencia, aislamiento de pacientes, y vistas de 390/320 px. Se probó en Chromium y PHP/MariaDB; Safari en iPhone físico se verifica en el hosting.
 
-## Actualización 2.1.3
-
-[Descargar ZIP de actualización](updates/vital-dent-actualizacion-2.1.3.zip) y extraer directamente en **VDNT**, no en `public/`. Conserva `server/config.php` y los datos. [Pasos](ACTUALIZAR.txt). Incluye login limpio, logo de regreso a Inicio, botones con espera y protección contra envíos duplicados, menú táctil completo y acceso recordado opcional por 30 días.
-
-Las pruebas adicionales verifican cookies persistentes/HttpOnly, almacenamiento del hash, restauración sin cookie de sesión PHP, plazo fijo, rechazo de tokens alterados o vencidos, revocación al salir/cambiar contraseña, navegación por el logo, mostrar/ocultar contraseña y envíos duplicados.
-
-Corrección 2.1.1: normaliza el origen de `app_url` y las cabeceras del navegador (mayúsculas, puertos predeterminados y ruta configurada). Un Origin opaco de WebKit sólo se acepta con Referer del dominio autorizado, además del CSRF obligatorio en escrituras. No se infiere el dominio permitido desde Host ni se habilitan comodines/CORS. Los errores de origen indican la URL autorizada.
-
-Versión 2.1.2: el error de origen tiene un título específico y permite copiar un diagnóstico con versiones, dominio abierto, dominio permitido y orígenes normalizados de las cabeceras. No contiene credenciales, cookies, CSRF, rutas, parámetros ni información clínica. El diagnóstico permite investigar el rechazo en el hosting; no deshabilita la validación de origen ni supone una causa todavía no observada.
-
-Versión 2.1.3: el diagnóstico confirmó que los dispositivos que fallaban abrían el alias `www.vdnt.bmimportexport.com.py`. Apache redirige ese alias con 308 a `https://vdnt.bmimportexport.com.py/`; la aplicación también lo hace antes de consultar la API como respaldo. No se amplía la lista de dominios autorizados. Probado con Apache real y navegador, incluidos rutas, consultas y ausencia de bucles. Prueba opcional de Apache con un fixture en 127.0.0.1:8092: `python3 tests/apache-redirect.py`.
+`python3 scripts/build-update.py` genera el ZIP reproducible con permisos 755/644 y su checksum; excluye configuración privada y datos. Hacer respaldo antes de actualizar. El JSON de exportación contiene datos clínicos sin cifrar; conservarlo en almacenamiento privado. El importador JSON admite hasta 30 MB; para bases mayores usar backups SQL del hosting.

@@ -2,15 +2,28 @@
 
 Gestión odontológica para **https://vdnt.bmimportexport.com.py/** con PHP 8.2+, PDO y MySQL/MariaDB. Interfaz clara en cyan y pastel para PC e iPhone.
 
-## Actualización 3.0
+## Actualización 3.1
 
-[Descargar ZIP](updates/vital-dent-actualizacion-3.0.0.zip) y extraer directamente en **VDNT**, donde están `public/` y `server/`. Conserva `server/config.php` y datos. El nuevo inicio no necesita cambios SQL. [Instrucciones](ACTUALIZAR.txt).
+[Descargar ZIP](updates/vital-dent-actualizacion-3.1.0.zip) y extraer directamente en **VDNT**, donde están `public/` y `server/`. Conserva `server/config.php` y datos. El nuevo inicio no necesita cambios SQL. [Instrucciones](ACTUALIZAR.txt).
 
 El inicio usa fichas, no una grilla: fecha, paciente, tratamiento, total, pagó y falta. **Anotar atención** registra el tratamiento, la nota y el pago opcional en una sola operación. **Atender** completa una cita del día. Próximas citas y pacientes ya atendidos están a la vista. Editar, eliminar y ver pagos están en el menú de la ficha; Pagos y Ajustes se encuentran en Más.
 
 ![Inicio de Vital Dent con datos ficticios de prueba](docs/inicio-3.0.png)
 
 Los datos antiguos se conservan. Las fechas desconocidas aparecen como Sin fecha. Los pagos nuevos pueden estar vinculados a un tratamiento; los anteriores y los excedentes se aplican al saldo más antiguo del mismo paciente. Este reparto se calcula para la vista sin reescribir pagos. El sobrante queda a favor y los totales coinciden con los de la ficha del paciente. Eliminar el importe de un tratamiento conserva su nota clínica y pagos.
+
+## Tratamientos con muchas sesiones
+
+Cada tratamiento tiene un seguimiento independiente dentro del paciente. Ortodoncia, endodoncia y otros procesos pueden coexistir, con sus propios estados, etapas, notas, citas y pagos.
+
+1. Abrir la ficha del paciente, **Plan de tratamiento → Nuevo tratamiento** y marcar **Lleva varias sesiones**.
+2. Entrar en **Ver seguimiento → Nueva sesión** en cada control. Se agrega una nota nueva y el presupuesto no vuelve a sumarse. Se puede anotar un pago en el mismo paso.
+3. **Agendar control** vincula la cita; **Atender** agrega una sesión al tratamiento correcto.
+4. Finalizar o reabrir el proceso desde **Estado**. Los demás tratamientos no cambian.
+
+Las pestañas Sesiones, Pagos y Plan pertenecen únicamente al tratamiento abierto. Los registros previos se pueden asignar desde Editar en la historia o los pagos. Las notas, fechas, estudios y etapas de las sesiones pasadas se conservan al editar el plan del proceso. Los pagos generales y el crédito del paciente mantienen la aplicación anterior; la vista indica cuando un importe proviene de ese saldo. No hay una cantidad fija de sesiones: se cargan de 12 en 12 en la interfaz.
+
+[Vista previa del seguimiento](docs/seguimiento-3.1.png) con datos ficticios. La actualización agrega metadatos JSON opcionales y no requiere una migración SQL nueva.
 
 ## Hosting
 
@@ -37,6 +50,6 @@ npm test
 
 El reset borra exclusivamente la base de prueba y rechaza configuraciones de producción. `CHROMIUM_PATH` y `PHP_BIN` permiten seleccionar herramientas instaladas. Las pruebas crean datos ficticios, cambian la contraseña de prueba y necesitan comenzar con el reset anterior.
 
-Validación: flujos clínicos anteriores, autenticación/sesiones, origen y redirección www, adjuntos, respaldo/restauración, dinero recibido/aplicado/crédito (200 escenarios), carga conjunta de atención y pago, fallos de guardado, pagos parciales, edición sin duplicados, citas próximas y atendidas, persistencia, aislamiento de pacientes, y vistas de 390/320 px. Se probó en Chromium y PHP/MariaDB; Safari en iPhone físico se verifica en el hosting.
+Validación: flujos clínicos anteriores, autenticación/sesiones, origen y redirección www, adjuntos, respaldo/restauración, dinero recibido/aplicado/crédito (200 escenarios), procesos de 65 sesiones en lógica y 36 controles persistidos con otro tratamiento paralelo, carga conjunta de atención y pago, fallos de guardado, pagos parciales, edición sin duplicados, citas próximas y atendidas, persistencia, aislamiento de pacientes, y vistas de 390/320 px. Se probó en Chromium y PHP/MariaDB; Safari en iPhone físico se verifica en el hosting.
 
 `python3 scripts/build-update.py` genera el ZIP reproducible con permisos 755/644 y su checksum; excluye configuración privada y datos. Hacer respaldo antes de actualizar. El JSON de exportación contiene datos clínicos sin cifrar; conservarlo en almacenamiento privado. El importador JSON admite hasta 30 MB; para bases mayores usar backups SQL del hosting.

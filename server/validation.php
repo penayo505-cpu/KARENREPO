@@ -61,14 +61,27 @@ function validate_clinic(mixed $d): void {
             }
         }
     }
-    $treatmentPatients=[];
+    $treatmentPatients=[];$sessionLinks=[];$appointmentPatients=[];
     foreach ($d['treatments'] as $t) {
         $treatmentPatients[$t['id']]=$t['patientId'];
         if (array_key_exists('date',$t) && !day($t['date'])) invalid();
+        if (array_key_exists('longTerm',$t) && !is_bool($t['longTerm'])) invalid();
+        foreach (['plan','stage'] as $field) if (array_key_exists($field,$t)) strings($t,[$field]);
+        if (isset($t['stage']) && strlen($t['stage'])>500) invalid();
     }
-    foreach (['treatments','sessions','payments'] as $key) foreach ($d[$key] as $r) {
-        foreach (['treatmentId','appointmentId'] as $link) if (array_key_exists($link,$r) && (!is_string($r[$link]) || !preg_match('/^[a-f0-9-]{36}$/D',$r[$link]))) invalid();
+    foreach ($d['appointments'] as $a) $appointmentPatients[$a['id']]=$a['patientId'];
+    foreach ($d['sessions'] as $s) {
+        $sessionLinks[$s['id']]=$s;
+        if (array_key_exists('stage',$s)) {strings($s,['stage']);if(strlen($s['stage'])>500)invalid();}
+    }
+    foreach (['treatments','sessions','payments','appointments'] as $key) foreach ($d[$key] as $r) {
+        foreach (['treatmentId','appointmentId','sessionId'] as $link) if (array_key_exists($link,$r) && (!is_string($r[$link]) || !preg_match('/^[a-f0-9-]{36}$/D',$r[$link]))) invalid();
         if (isset($treatmentPatients[$r['treatmentId']??'']) && $treatmentPatients[$r['treatmentId']]!==$r['patientId']) invalid();
+        if (isset($appointmentPatients[$r['appointmentId']??'']) && $appointmentPatients[$r['appointmentId']]!==$r['patientId']) invalid();
+        if ($key==='payments' && isset($sessionLinks[$r['sessionId']??''])) {
+            $session=$sessionLinks[$r['sessionId']];
+            if ($session['patientId']!==$r['patientId'] || ($session['treatmentId']??null)!==($r['treatmentId']??null)) invalid();
+        }
     }
     if (!isset($d['teeth']) || !is_array($d['teeth'])) invalid();
     foreach ($d['teeth'] as $pid=>$teeth) {

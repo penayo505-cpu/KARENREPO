@@ -99,9 +99,9 @@ La PWA puede mostrar su interfaz sin conexión, pero esta edición **requiere In
 
 Esta entrega incluye código y pruebas en un servidor de desarrollo con PHP/MariaDB; no configura tu DNS, SSL ni base remota sin acceso al hosting. La prueba en un iPhone físico/Safari debe realizarse tras instalar. El diseño clínico usa blanco, cyan y pastel con alertas diferenciadas.
 
-## Actualizar una instalación existente a 3.0
+## Actualizar una instalación existente a 3.1
 
-Descargar `updates/vital-dent-actualizacion-3.0.0.zip`, subirlo y extraerlo dentro de **VDNT**, la carpeta que contiene `public/` y `server/`, aceptando reemplazar sólo los archivos incluidos. No extraer dentro de `public/`, no borrar carpetas y no reimportar el esquema completo. El ZIP excluye `server/config.php`, contraseñas y datos. Incluye permisos 755 para sus carpetas y 644 para sus archivos, evitando el 403 por archivos sin lectura pública.
+Descargar `updates/vital-dent-actualizacion-3.1.0.zip`, subirlo y extraerlo dentro de **VDNT**, la carpeta que contiene `public/` y `server/`, aceptando reemplazar sólo los archivos incluidos. No extraer dentro de `public/`, no borrar carpetas y no reimportar el esquema completo. El ZIP excluye `server/config.php`, contraseñas y datos. Incluye permisos 755 para sus carpetas y 644 para sus archivos, evitando el 403 por archivos sin lectura pública.
 
 La tabla de accesos recordados se crea automáticamente. Si aparece un error de permiso CREATE, seleccionar **bmimport_vdnt** e importar sólo `database/upgrade-2.1.sql`. Cerrar las ventanas/PWA y abrir nuevamente para activar el Service Worker actualizado; no hace falta borrar los datos del sitio. Ver también `ACTUALIZAR.txt`. El ZIP puede regenerarse con `python3 scripts/build-update.py` y tiene un checksum SHA-256 junto al archivo.
 
@@ -113,6 +113,10 @@ La versión 2.1.3 redirige automáticamente el alias `www.vdnt.bmimportexport.co
 
 ## Nuevo inicio 3.0
 
-El ZIP actual es `updates/vital-dent-actualizacion-3.0.0.zip`: extraer en VDNT conservando `server/config.php`. No se necesita SQL nuevo para las fichas de atención. Se añade `public/home-balances.js` y se actualiza la validación de metadatos opcionales. No borrar ese módulo al subir archivos.
+El ZIP actual es `updates/vital-dent-actualizacion-3.1.0.zip`: extraer en VDNT conservando `server/config.php`. No se necesita SQL nuevo para las fichas de atención. Se añade `public/home-balances.js` y se actualiza la validación de metadatos opcionales. No borrar ese módulo al subir archivos.
 
 Anotar atención guarda, de forma atómica, tratamiento realizado, nota clínica y pago opcional. El flujo Atender completa la cita elegida. Los pagos nuevos se pueden vincular al tratamiento; los pagos anteriores sin esa referencia y los excedentes se distribuyen al saldo más antiguo del mismo paciente, sin modificar los registros de pagos. Los datos sin fecha se indican como Sin fecha. Más contiene Pagos y Ajustes. Ver ACTUALIZAR.txt para detalles.
+
+## Tratamientos con sesiones independientes (3.1)
+
+Extraer el ZIP 3.1 en VDNT conservando config.php y la base. Se añade public/courses.js, incluido en el Service Worker. Cada paciente puede tener varios tratamientos; todos tienen su página de seguimiento y los prolongados agregan sesiones sin duplicar presupuestos ni sobrescribir notas. Los enlaces entre tratamiento, paciente, cita, sesión y pago son validados tanto en navegador como en PHP. Los campos nuevos son JSON opcionales, por lo que no requieren SQL nuevo. La exportación/restauración incluye todos los enlaces y adjuntos. Ver ACTUALIZAR.txt para asignar notas y pagos anteriores a su tratamiento.

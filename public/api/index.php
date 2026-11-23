@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
-header('X-Vital-Dent-Version: 3.0.0');
+header('X-Vital-Dent-Version: 3.1.0');
 function reply(array $data, int $status=200): never { http_response_code($status); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); exit; }
 set_exception_handler(function(Throwable $e): void {
     if ($e instanceof InvalidArgumentException || $e instanceof JsonException) reply(['error'=>'Solicitud inválida. Revisá los datos enviados.'],422);

@@ -1,35 +1,47 @@
-VITAL DENT 3.0 — INICIO CENTRADO EN LAS ATENCIONES
+VITAL DENT 3.1 — SEGUIMIENTO INDEPENDIENTE POR TRATAMIENTO
 
 INSTALAR
-1. Exportar un respaldo y conservar una copia de la base MySQL.
-2. Subir vital-dent-actualizacion-3.0.0.zip a VDNT y extraer allí, reemplazando
-   los archivos incluidos. NO extraer dentro de public ni crear otra carpeta.
-3. El ZIP conserva server/config.php y todos los datos. No requiere SQL nuevo
-   para el nuevo inicio. Incluye la actualización anterior de sesiones recordadas
-   por si se instala sobre una versión más antigua.
-4. Recargar con Ctrl + F5 en PC. En iPhone cerrar la PWA/Safari y volver a abrir.
-   Conservar los archivos ocultos, incluido public/.htaccess. El ZIP lleva
-   carpetas 755 y archivos 644; no cambiar los permisos de config.php.
-5. Borrar el ZIP del hosting una vez extraído.
+1. Hacer un respaldo de la aplicación y de la base de datos.
+2. Subir vital-dent-actualizacion-3.1.0.zip y extraer directamente dentro de VDNT,
+   donde están public/ y server/, aceptando reemplazar los archivos incluidos.
+3. No borrar carpetas, no reemplazar server/config.php ni importar schema.sql.
+   El seguimiento nuevo no necesita cambios SQL. El ZIP conserva la conexión y datos.
+4. En PC recargar con Ctrl + F5. En iPhone cerrar Safari/PWA y volver a abrir.
+   El ZIP incluye permisos 755 para carpetas y 644 para sus archivos.
 
-NUEVO INICIO
-- Fichas de atención, sin grilla de Excel ni indicadores comerciales.
-- Cada ficha muestra paciente, fecha, tratamiento, total, pagó y falta.
-- Anotar atención guarda el tratamiento, la nota clínica y el pago opcional
-  en un solo paso. Se puede registrar un tratamiento ya previsto sin duplicarlo.
-- Atender, junto a una cita de hoy, completa la cita al guardar la atención.
-- Citas: Próximas y Ya atendidos. El calendario mensual sigue disponible.
-- Editar, eliminar y ver los pagos están en el menú de tres puntos de la ficha.
-- El menú principal muestra Inicio, Pacientes y Agenda. Pagos y Ajustes están
-  dentro de Más. Se conservan odontograma, adjuntos y las funciones anteriores.
+USAR POR PACIENTE
+- Abrir Pacientes -> ficha -> Plan de tratamiento -> Nuevo tratamiento.
+- Anotar nombre (por ejemplo Ortodoncia), total acordado y marcar Lleva varias
+  sesiones. Se pueden registrar varios tratamientos para el mismo paciente.
+- Ver seguimiento abre una página exclusiva de ese tratamiento: Sesiones,
+  Pagos y Plan, con estado, etapa actual, presupuesto y saldo propios.
+- Nueva sesión agrega un control nuevo con fecha, procedimiento, notas,
+  materiales, anestesia y estudios opcionales. No sobreescribe los controles previos.
+- El pago opcional de ese control queda vinculado al tratamiento y a esa sesión.
+- Agendar control vincula la cita al tratamiento. Al atenderla desde el inicio,
+  se agrega una sesión al mismo proceso y se marca esa cita como atendida.
+- El total acordado se carga una sola vez; no se multiplica por la cantidad de visitas.
+- El tratamiento permanece En Curso hasta que se cambie a Finalizado. Los otros
+  tratamientos del paciente siguen con sus propios estados y sesiones.
+- El historial muestra primero las sesiones recientes y permite Ver más sesiones.
 
-PAGOS Y DATOS ANTERIORES
-Los pagos nuevos anotados desde una atención se vinculan con ese tratamiento.
-Los pagos anteriores sin vinculación se aplican primero a los importes más
-antiguos del mismo paciente. La asignación es un cálculo de pantalla: no modifica,
-recrea ni borra los pagos originales. El excedente queda a favor del paciente y
-se aplica a siguientes tratamientos. Los totales del paciente siguen coincidiendo.
-Un tratamiento sin fecha anterior muestra Sin fecha; no se inventan fechas.
-Las notas anteriores siguen en la ficha y en Ya atendidos. Los tratamientos por
-hacer se distinguen y se pueden filtrar. Eliminar un importe no borra la nota
-clínica ni los pagos: se recalcula el saldo/crédito correspondiente.
+TRATAMIENTOS Y REGISTROS ANTERIORES
+Todo tratamiento, incluso puntual, tiene Ver seguimiento. Para continuar uno
+anterior: Ver seguimiento -> Plan -> Editar; marcar Lleva varias sesiones y poner
+su estado En Curso. Conservar el importe existente, sin volver a cargar pagos.
+
+Las notas viejas no se asignan por adivinación. En Evolución clínica se pueden
+filtrar por tratamiento. Editar una nota sin asignación y elegir su tratamiento
+conserva el mismo registro y sus adjuntos. Los pagos anteriores también permiten
+seleccionar un tratamiento desde Editar. Una sesión con un pago ligado conserva
+su tratamiento; el pago puede corregirse por separado.
+
+Los pagos específicos se muestran en el historial del tratamiento elegido.
+Los pagos generales y los excedentes siguen aplicándose al saldo del paciente
+según las reglas de la versión anterior. El saldo a favor es del paciente: puede
+cubrir otro tratamiento. La pantalla aclara los importes aplicados desde ese saldo.
+Eliminar un importe conserva las notas y los pagos en la ficha del paciente.
+
+No se impone un máximo de una o dos sesiones. Se probaron 36 sesiones en el
+servidor y 65 en las pruebas de lógica. Se mantienen los límites de tamaño del
+hosting y los 10 MB de adjuntos por sesión. Exportar respaldos periódicamente.
